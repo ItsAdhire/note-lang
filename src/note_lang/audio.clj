@@ -1,41 +1,11 @@
 (ns note-lang.audio
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.java.io :as io]
+            [note-lang.wave :as wave]))
 
 (import javax.sound.sampled.AudioInputStream
         javax.sound.sampled.AudioFormat
         javax.sound.sampled.AudioFileFormat$Type
         javax.sound.sampled.AudioSystem)
-
-(defn- sin [x] 
- (Math/sin x))
-
-(defn wave [freq vol bitrate duration]
-  (let [domain  (* freq 2 Math/PI)
-        amp     (partial * vol)
-        step    (/ domain bitrate)
-        samples (* bitrate duration)]
-    (->> (range)
-         (map (comp amp sin (partial * step)))
-         (take samples))))
-
-;-------
-
-(def note->freq
-  {:e4 329.63
-   :a4 440
-   :c5 523.25
-   :e5 659.25
-   :g5 783.99
-   :b5 987.77
-   :rest 0})
-
-
-(defn song->wave [song vol bitrate duration]
- (->> song
-      (map note->freq)
-      (mapcat #(wave % vol bitrate duration))))
-
-;-------
 
 (defn- create-format [bitrate]
   (new AudioFormat bitrate 8 1 true true))
@@ -73,19 +43,19 @@
 
 ;-------
 
-(defn- apply-song-as-wave [song vol bitrate duration f]
-      (f (song->wave song vol bitrate duration)))
+(defn- apply-song-as-wave [song vol bitrate tempo f]
+      (f (wave/song->wave song vol bitrate tempo)))
 
-(defn save [song vol bitrate duration file-path]
+(defn save [song vol bitrate tempo file-path]
   (apply-song-as-wave song
                       vol 
                       bitrate
-                      duration 
+                      tempo 
                       #(save-wave % bitrate file-path)))
 
-(defn play [song vol bitrate duration]
+(defn play [song vol bitrate tempo]
   (apply-song-as-wave song
                       vol 
                       bitrate
-                      duration 
+                      tempo
                       #(play-wave % bitrate)))
