@@ -1,6 +1,6 @@
 (ns note-lang.audio
   (:require [clojure.java.io :as io]
-            [note-lang.wave :as wave]))
+            [note-lang.wave.core :as wave]))
 
 (import javax.sound.sampled.AudioInputStream
         javax.sound.sampled.AudioFormat
@@ -24,8 +24,9 @@
       (min 127)))
 
 (defn- wave->audio-istream [wave bitrate]
-  (let [len (count wave)]
-    (-> (map byte-clamp wave)
+  (let [flat-wave (flatten wave)
+        len       (count flat-wave)]
+    (-> (map byte-clamp flat-wave)
         (byte-array)
         (io/input-stream)
         (create-audio-istream bitrate len))))
@@ -43,19 +44,28 @@
 
 ;-------
 
-(defn- apply-song-as-wave [song vol bitrate tempo f]
-      (f (wave/song->wave song vol bitrate tempo)))
+(defn- apply-song-as-wave [song vol bitrate tempo post-procs f]
+      (f (wave/song->wave song vol bitrate tempo post-procs)))
 
-(defn save [song vol bitrate tempo file-path]
-  (apply-song-as-wave song
-                      vol 
-                      bitrate
-                      tempo 
-                      #(save-wave % bitrate file-path)))
-
-(defn play [song vol bitrate tempo]
-  (apply-song-as-wave song
-                      vol 
-                      bitrate
-                      tempo
-                      #(play-wave % bitrate)))
+(defn save 
+  ([song vol bitrate tempo file-path]
+   (save song vol bitrate tempo [:ads-linear] file-path))
+  ([song vol bitrate tempo post-procs file-path]
+   (apply-song-as-wave song
+                       vol 
+                       bitrate
+                       tempo 
+                       post-procs
+                       #(save-wave % bitrate file-path))))
+   
+(defn play 
+  ([song vol bitrate tempo]
+   (play song vol bitrate tempo [:ads-linear]))
+  ([song vol bitrate tempo post-procs]
+   (apply-song-as-wave song
+                       vol 
+                       bitrate
+                       tempo
+                       post-procs
+                       #(play-wave % bitrate))))
+   
