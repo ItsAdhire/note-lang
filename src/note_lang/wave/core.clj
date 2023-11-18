@@ -1,5 +1,6 @@
 (ns note-lang.wave.core
-  (:require [note-lang.wave.ads :as ads]))
+  (:require [note-lang.wave.ads :as ads]
+            [note-lang.notes :as notes]))
 
 (defn- sin [x] 
  (Math/sin x))
@@ -13,18 +14,8 @@
          (map (comp amp sin stepper))
          (take samples))))
 
-(def note->freq
-  {:e4 329.63
-   :a4 440
-   :c5 523.25
-   :e5 659.25
-   :g5 783.99
-   :b5 987.77
-   :a5 880
-   :rest 0})
-
 (def post-processes
-  {:ads-linear #(ads/ads-linear % 5)})
+  {:ads-linear #(ads/ads-linear % 2)})
 
 ; TODO consider using (tree-seq)
 (defn- song->nested-wave
@@ -38,7 +29,7 @@
                                 effbpm 
                                 (inc subd)) 
             song)
-       (wave (note->freq song) vol bitrate dur)))))
+       (wave (notes/note->freq song) vol bitrate dur)))))
 
 (defn song->wave [song vol bitrate bpm post-procs]
   (reduce #((%2 post-processes identity) %1) 

@@ -13,7 +13,7 @@
     (repeat 1)))
   
 (defn- ads-pulse [wave attack]
-  (let [attack-len (/ (count wave) 5)]
+  (let [attack-len (/ (count wave) 4)]
     (map * wave (ads-amp attack attack-len))))
 
 (defn- nested? [wave]
