@@ -19,19 +19,17 @@
 
 ; TODO consider using (tree-seq)
 (defn- song->nested-wave
-  ([song vol bitrate bpm subd]
-   (let [effbpm (* bpm subd)
-         dur    (/ 60 effbpm)]
+  ([song vol bitrate bpm]
+   (let [dur (/ 60 bpm)]
      (if (sequential? song)
        (map #(song->nested-wave % 
                                 vol 
                                 bitrate 
-                                effbpm 
-                                (inc subd)) 
+                                (* bpm (count song))) 
             song)
        (wave (notes/note->freq song) vol bitrate dur)))))
 
 (defn song->wave [song vol bitrate bpm post-procs]
   (reduce #((%2 post-processes identity) %1) 
-          (map #(song->nested-wave % vol bitrate bpm 1) song)
+          (map #(song->nested-wave % vol bitrate bpm) song)
           post-procs))
