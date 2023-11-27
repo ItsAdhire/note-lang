@@ -1,5 +1,6 @@
 (ns note-lang.core
-  (:require [note-lang.audio :as audio]))
+  (:require [note-lang.audio :as audio]
+            [note-lang.wave.song :as wave]))
 
 (def song
   [:c5 :c5 :g5 :e5
@@ -15,4 +16,4 @@
    [:g4 :f#4] [:f4 :e4]
    :d#4 :d4 :c#4 :c4])
 
-(audio/play song2 50 8800 120) 
+(audio/save song2 30 8800 60 "out.wav")

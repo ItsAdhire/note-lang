@@ -1,6 +1,4 @@
-(ns note-lang.wave.core
-  (:require [note-lang.wave.ads :as ads]
-            [note-lang.notes :as notes]))
+(ns note-lang.wave.core)
 
 (defn- sin [x] 
  (Math/sin x))
@@ -14,22 +12,11 @@
          (map (comp amp sin stepper))
          (take samples))))
 
-(def post-processes
-  {:ads-linear #(ads/ads-linear % 2)})
+; TODO make private once adsr-linear is updated to use nested-map
+(defn nested? [wave]
+ (sequential? (first wave)))
 
-; TODO consider using (tree-seq)
-(defn- song->nested-wave
-  ([song vol bitrate bpm]
-   (let [dur (/ 60 bpm)]
-     (if (sequential? song)
-       (map #(song->nested-wave % 
-                                vol 
-                                bitrate 
-                                (* bpm (count song))) 
-            song)
-       (wave (notes/note->freq song) vol bitrate dur)))))
-
-(defn song->wave [song vol bitrate bpm post-procs]
-  (reduce #((%2 post-processes identity) %1) 
-          (map #(song->nested-wave % vol bitrate bpm) song)
-          post-procs))
+(defn nested-map [f coll]
+  (if (nested? coll)
+    (map #(nested-map f %) coll)
+    (f coll)))
