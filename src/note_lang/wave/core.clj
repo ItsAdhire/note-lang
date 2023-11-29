@@ -14,7 +14,7 @@
 
 ; TODO make private once adsr-linear is updated to use nested-map
 (defn nested? [wave]
- (sequential? (first wave)))
+ (and (not (map? wave)) ((some-fn map? sequential?) (first wave))))
 
 (defn nested-map [f coll]
   (if (nested? coll)

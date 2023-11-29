@@ -1,6 +1,6 @@
 (ns note-lang.audio
   (:require [clojure.java.io :as io]
-            [note-lang.wave.core :as wave]))
+            [note-lang.wave.song :as wave]))
 
 (import javax.sound.sampled.AudioInputStream
         javax.sound.sampled.AudioFormat

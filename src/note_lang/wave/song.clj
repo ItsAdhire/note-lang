@@ -13,6 +13,9 @@
      (wave/wave (notes/note->freq song) vol bitrate (/ 60 bpm)))))
 
 (defn song->wave [song vol bitrate bpm]
-  (adsr/adsr-linear 
-    (map #(song->nested-wave % vol bitrate bpm) song)
-    5 880 880 1))
+  (apply map + 
+         (map flatten 
+              (adsr/adsr-linear 
+                song
+                (map #(song->nested-wave % vol bitrate bpm) song)
+                5 440 440 880))))

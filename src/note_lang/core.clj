@@ -16,4 +16,4 @@
    [:g4 :f#4] [:f4 :e4]
    :d#4 :d4 :c#4 :c4])
 
-(audio/save song2 30 8800 60 "out.wav")
+(audio/play-wave (wave/song->wave song2 20 8800 120) 8800)
